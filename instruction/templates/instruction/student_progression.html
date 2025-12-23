@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-12">
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <a href="{% url 'instructor_dashboard' %}" class="text-sm text-brand-600 hover:text-brand-700">< Retour</a>
+            <h1 class="text-3xl font-bold text-gray-900 mt-2">{{ student.first_name }} {{ student.last_name }}</h1>
+            <p class="text-gray-500">Livret de progression</p>
+        </div>
+        <a href="{% url 'log_lesson' student.id %}" class="bg-brand-600 text-white px-4 py-2 rounded-xl font-bold hover:bg-brand-700">
+            + Noter une seance
+        </a>
+    </div>
+
+    {% if progression %}
+    <!-- Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
+        <div class="bg-white p-4 rounded-xl shadow-sm border text-center">
+            <div class="text-2xl font-bold text-brand-600">{{ progression.target_license }}</div>
+            <div class="text-xs text-gray-500">Objectif</div>
+        </div>
+        <div class="bg-white p-4 rounded-xl shadow-sm border text-center">
+            <div class="text-2xl font-bold text-blue-600">{{ progression.total_instruction_hours|floatformat:1 }}h</div>
+            <div class="text-xs text-gray-500">DC</div>
+        </div>
+        <div class="bg-white p-4 rounded-xl shadow-sm border text-center">
+            <div class="text-2xl font-bold text-green-600">{{ progression.total_solo_hours|floatformat:1 }}h</div>
+            <div class="text-xs text-gray-500">Solo</div>
+        </div>
+        <div class="bg-white p-4 rounded-xl shadow-sm border text-center">
+            <div class="text-2xl font-bold text-purple-600">{{ progression.total_hours|floatformat:1 }}h</div>
+            <div class="text-xs text-gray-500">Total</div>
+        </div>
+        <div class="bg-white p-4 rounded-xl shadow-sm border text-center">
+            <div class="text-2xl font-bold {% if progression.first_solo_date %}text-green-600{% else %}text-gray-400{% endif %}">
+                {% if progression.first_solo_date %}{{ progression.first_solo_date|date:"d/m" }}{% else %}-{% endif %}
+            </div>
+            <div class="text-xs text-gray-500">1er Solo</div>
+        </div>
+        <div class="bg-white p-4 rounded-xl shadow-sm border text-center">
+            <div class="text-2xl font-bold {% if progression.is_active %}text-green-600{% else %}text-red-600{% endif %}">
+                {% if progression.is_active %}Actif{% else %}Inactif{% endif %}
+            </div>
+            <div class="text-xs text-gray-500">Statut</div>
+        </div>
+    </div>
+
+    <!-- Progression phases -->
+    <div class="mb-8">
+        <h2 class="text-lg font-bold text-gray-900 mb-4">Progression par phase</h2>
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+            {% for item in phases_progress %}
+            <div class="bg-white rounded-xl shadow-sm border p-4">
+                <div class="flex justify-between items-start mb-2">
+                    <span class="text-xs font-bold text-brand-600">{{ item.phase.code }}</span>
+                    <span class="text-xs text-gray-400">{{ item.acquired }}/{{ item.total }}</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2 mb-1">
+                    <div class="h-2 rounded-full {% if item.percentage >= 80 %}bg-green-500{% elif item.percentage >= 40 %}bg-blue-500{% else %}bg-gray-400{% endif %}"
+                        style="width: {{ item.percentage }}%"></div>
+                </div>
+                <div class="text-xs text-gray-500">{{ item.percentage }}%</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Exercices par phase -->
+    <div class="mb-8">
+        <h2 class="text-lg font-bold text-gray-900 mb-4">Detail des exercices</h2>
+        {% for phase in all_phases %}
+        <div class="mb-4 bg-white rounded-xl shadow-sm border overflow-hidden">
+            <div class="bg-gray-50 px-4 py-2 border-b">
+                <span class="font-bold text-gray-900">{{ phase.code }} - {{ phase.name }}</span>
+            </div>
+            <div class="p-4 grid grid-cols-3 md:grid-cols-6 lg:grid-cols-8 gap-2">
+                {% for exercise in phase.exercises.all %}
+                <form method="post" action="{% url 'update_exercise_level' student.id exercise.id %}" class="inline">
+                    {% csrf_token %}
+                    <div class="border rounded p-2 text-center hover:shadow-md transition-shadow">
+                        <div class="text-xs font-bold text-gray-500">{{ exercise.code }}</div>
+                        <select name="level" onchange="this.form.submit()" class="w-full text-center text-lg font-bold border-0 bg-transparent cursor-pointer">
+                            <option value="-" {% if exercise.id not in current_levels or current_levels|get:exercise.id == '-' %}selected{% endif %}>-</option>
+                            <option value="P" {% if current_levels|get:exercise.id == 'P' %}selected{% endif %}>P</option>
+                            <option value="E" {% if current_levels|get:exercise.id == 'E' %}selected{% endif %}>E</option>
+                            <option value="A" {% if current_levels|get:exercise.id == 'A' %}selected{% endif %}>A</option>
+                            <option value="+" {% if current_levels|get:exercise.id == '+' %}selected{% endif %}>+</option>
+                        </select>
+                    </div>
+                </form>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Dernieres lecons -->
+    <div>
+        <h2 class="text-lg font-bold text-gray-900 mb-4">Dernieres seances</h2>
+        <div class="space-y-4">
+            {% for lesson in lessons %}
+            <div class="bg-white rounded-xl shadow-sm border p-4">
+                <div class="flex justify-between items-start mb-2">
+                    <div>
+                        <span class="text-xs text-gray-500">{{ lesson.date|date:"d/m/Y H:i" }}</span>
+                        <h3 class="font-bold text-gray-900">{{ lesson.title }}</h3>
+                    </div>
+                    <span class="px-2 py-1 rounded text-xs font-bold {% if lesson.grade >= 4 %}bg-green-100 text-green-800{% elif lesson.grade == 3 %}bg-blue-100 text-blue-800{% else %}bg-orange-100 text-orange-800{% endif %}">
+                        {{ lesson.grade }}/5
+                    </span>
+                </div>
+                <p class="text-sm text-gray-600">{{ lesson.comments|truncatewords:30 }}</p>
+                {% if lesson.next_steps %}
+                <p class="text-xs text-gray-500 mt-2">Prochaine etape: {{ lesson.next_steps }}</p>
+                {% endif %}
+            </div>
+            {% empty %}
+            <p class="text-gray-500">Aucune seance enregistree.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

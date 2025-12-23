@@ -5,7 +5,26 @@
     <div class="flex justify-between items-center mb-12">
         <div>
             <h1 class="text-3xl font-bold text-gray-900">Espace Instructeur</h1>
-            <p class="text-gray-500">Suivi et validation des élèves.</p>
+            <p class="text-gray-500">Suivi et validation des eleves.</p>
+        </div>
+        <a href="{% url 'training_program' %}" class="text-brand-600 hover:text-brand-700 font-medium">
+            Voir le programme FFA
+        </a>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-3 gap-4 mb-8">
+        <div class="bg-white p-6 rounded-xl shadow-sm border text-center">
+            <div class="text-3xl font-bold text-brand-600">{{ stats.total_students }}</div>
+            <div class="text-sm text-gray-500">Eleves</div>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-sm border text-center">
+            <div class="text-3xl font-bold text-green-600">{{ stats.active_students }}</div>
+            <div class="text-sm text-gray-500">Mes eleves actifs</div>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-sm border text-center">
+            <div class="text-3xl font-bold text-blue-600">{{ stats.total_lessons }}</div>
+            <div class="text-sm text-gray-500">Lecons donnees</div>
         </div>
     </div>
 
@@ -13,33 +32,39 @@
 
         <!-- Left: Student List -->
         <div class="lg:col-span-2">
-            <h2 class="font-bold text-xl mb-6">Mes Élèves</h2>
+            <h2 class="font-bold text-xl mb-6">Mes Eleves</h2>
             <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
                 <table class="w-full text-left">
                     <thead class="bg-gray-50 text-xs uppercase text-gray-500">
                         <tr>
                             <th class="px-6 py-4">Nom</th>
-                            <th class="px-6 py-4">Dernière leçon</th>
-                            <th class="px-6 py-4 text-right">Action</th>
+                            <th class="px-6 py-4">Phase</th>
+                            <th class="px-6 py-4">Heures</th>
+                            <th class="px-6 py-4 text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
-                        {% for student in students %}
+                        {% for item in students %}
                         <tr class="hover:bg-gray-50 transition-colors">
                             <td class="px-6 py-4 font-medium text-gray-900">
-                                {{ student.first_name }} {{ student.last_name }}
+                                {{ item.user.first_name }} {{ item.user.last_name }}
                             </td>
                             <td class="px-6 py-4 text-sm text-gray-500">
-                                {% with last_lesson=student.lessons_received.last %}
-                                {% if last_lesson %}
-                                {{ last_lesson.date|date:"d/m/Y" }} - {{ last_lesson.title }}
+                                {% if item.progression and item.progression.current_phase %}
+                                <span class="px-2 py-1 bg-brand-100 text-brand-700 rounded text-xs">{{ item.progression.current_phase.code }}</span>
                                 {% else %}
                                 -
                                 {% endif %}
-                                {% endwith %}
                             </td>
-                            <td class="px-6 py-4 text-right">
-                                <a href="{% url 'log_lesson' student.id %}"
+                            <td class="px-6 py-4 text-sm text-gray-500">
+                                {{ item.hours|floatformat:1 }}h
+                            </td>
+                            <td class="px-6 py-4 text-right space-x-2">
+                                <a href="{% url 'student_progression' item.user.id %}"
+                                    class="inline-block text-brand-600 hover:text-brand-700 text-xs font-bold">
+                                    Voir
+                                </a>
+                                <a href="{% url 'log_lesson' item.user.id %}"
                                     class="inline-block bg-brand-600 text-white text-xs font-bold px-3 py-2 rounded-lg hover:bg-brand-700 transition-colors">
                                     + Noter
                                 </a>
@@ -47,8 +72,8 @@
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="3" class="px-6 py-8 text-center text-gray-400">
-                                Aucun élève inscrit.
+                            <td colspan="4" class="px-6 py-8 text-center text-gray-400">
+                                Aucun eleve inscrit.
                             </td>
                         </tr>
                         {% endfor %}
@@ -59,7 +84,7 @@
 
         <!-- Right: Recent Activity -->
         <div>
-            <h2 class="font-bold text-xl mb-6">Activité Récente</h2>
+            <h2 class="font-bold text-xl mb-6">Activite Recente</h2>
             <div class="space-y-4">
                 {% for lesson in my_lessons %}
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 text-sm">
@@ -68,10 +93,13 @@
                         <span>{{ lesson.student.first_name }} {{ lesson.student.last_name|first }}.</span>
                     </div>
                     <div class="font-bold text-gray-800">{{ lesson.title }}</div>
-                    <div class="text-gray-500 mt-1 truncate">{{ lesson.comments }}</div>
+                    {% if lesson.phase %}
+                    <span class="text-xs text-brand-600">{{ lesson.phase.code }}</span>
+                    {% endif %}
+                    <div class="text-gray-500 mt-1 truncate">{{ lesson.comments|truncatewords:15 }}</div>
                 </div>
                 {% empty %}
-                <p class="text-gray-400 text-sm">Aucune activité récente.</p>
+                <p class="text-gray-400 text-sm">Aucune activite recente.</p>
                 {% endfor %}
             </div>
         </div>
