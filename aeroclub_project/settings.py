@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "instruction",
     "alerts",
     "exports",
+    "meteo",
 ]
 
 MIDDLEWARE = [

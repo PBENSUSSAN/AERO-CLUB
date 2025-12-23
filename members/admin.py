@@ -2,7 +2,8 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 from django.utils.html import format_html
-from .models import Member, QualificationType, MemberTypeQualification
+from django.utils import timezone
+from .models import Member, QualificationType, MemberTypeQualification, MemberDocument
 
 
 class MemberInline(admin.StackedInline):
@@ -147,3 +148,66 @@ class MemberTypeQualificationAdmin(admin.ModelAdmin):
     list_filter = ['qualification_type', 'is_active', 'granted_date']
     search_fields = ['member__user__last_name', 'member__user__first_name']
     autocomplete_fields = ['member', 'granted_by']
+
+
+class MemberDocumentInline(admin.TabularInline):
+    model = MemberDocument
+    extra = 0
+    fields = ['document_type', 'title', 'file', 'expiry_date', 'status', 'is_current']
+    readonly_fields = ['upload_date']
+    ordering = ['-upload_date']
+
+
+@admin.register(MemberDocument)
+class MemberDocumentAdmin(admin.ModelAdmin):
+    list_display = ['member', 'document_type', 'title', 'expiry_date', 'status_badge', 'is_current', 'upload_date']
+    list_filter = ['document_type', 'status', 'is_current']
+    search_fields = ['member__user__last_name', 'member__user__first_name', 'title']
+    date_hierarchy = 'upload_date'
+    autocomplete_fields = ['member', 'validated_by']
+    readonly_fields = ['upload_date']
+    actions = ['validate_documents', 'reject_documents']
+
+    fieldsets = (
+        ('Document', {
+            'fields': ('member', 'document_type', 'title', 'file')
+        }),
+        ('Dates', {
+            'fields': ('issue_date', 'expiry_date', 'upload_date')
+        }),
+        ('Validation', {
+            'fields': ('status', 'validated_by', 'validation_date', 'rejection_reason')
+        }),
+        ('Options', {
+            'fields': ('is_current', 'notes')
+        }),
+    )
+
+    def status_badge(self, obj):
+        colors = {
+            'PENDING': 'orange',
+            'VALID': 'green',
+            'EXPIRED': 'red',
+            'REJECTED': 'darkred',
+        }
+        color = colors.get(obj.status, 'gray')
+        return format_html(
+            '<span style="color: {}; font-weight: bold;">{}</span>',
+            color,
+            obj.get_status_display()
+        )
+    status_badge.short_description = 'Statut'
+
+    @admin.action(description="Valider les documents selectionnes")
+    def validate_documents(self, request, queryset):
+        count = queryset.update(
+            status='VALID',
+            validated_by=request.user,
+            validation_date=timezone.now()
+        )
+        self.message_user(request, f"{count} document(s) valide(s).")
+
+    @admin.action(description="Refuser les documents selectionnes")
+    def reject_documents(self, request, queryset):
+        count = queryset.update(status='REJECTED')
+        self.message_user(request, f"{count} document(s) refuse(s).")

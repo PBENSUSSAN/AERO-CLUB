@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-12">
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Meteo Aeronautique</h1>
+            <p class="text-gray-500">METAR et TAF temps reel</p>
+        </div>
+        <form method="get" class="flex gap-2">
+            <select name="icao" class="border-gray-300 rounded-lg shadow-sm">
+                {% for code, name in airports %}
+                <option value="{{ code }}" {% if code == home_airport %}selected{% endif %}>{{ code }} - {{ name }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="bg-brand-600 text-white px-4 py-2 rounded-lg hover:bg-brand-700">Actualiser</button>
+        </form>
+    </div>
+
+    <!-- Conditions de vol -->
+    <div class="mb-8 p-6 rounded-2xl shadow-sm border
+        {% if conditions.color == 'green' %}bg-green-50 border-green-200
+        {% elif conditions.color == 'blue' %}bg-blue-50 border-blue-200
+        {% elif conditions.color == 'red' %}bg-red-50 border-red-200
+        {% elif conditions.color == 'purple' %}bg-purple-50 border-purple-200
+        {% else %}bg-gray-50 border-gray-200{% endif %}">
+        <div class="flex justify-between items-center">
+            <div>
+                <div class="text-4xl font-bold
+                    {% if conditions.color == 'green' %}text-green-600
+                    {% elif conditions.color == 'blue' %}text-blue-600
+                    {% elif conditions.color == 'red' %}text-red-600
+                    {% elif conditions.color == 'purple' %}text-purple-600
+                    {% else %}text-gray-600{% endif %}">
+                    {{ conditions.status }}
+                </div>
+                <div class="text-lg text-gray-700">{{ conditions.message }}</div>
+                {% if conditions.wind_warning %}
+                <div class="mt-2 text-orange-600 font-bold">{{ conditions.wind_warning }}</div>
+                {% endif %}
+            </div>
+            <div class="text-right">
+                <div class="text-2xl font-bold text-gray-900">{{ home_airport }}</div>
+                {% if metar.name %}
+                <div class="text-gray-500">{{ metar.name }}</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- METAR -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">METAR</h2>
+            {% if metar %}
+            <div class="bg-gray-900 text-green-400 font-mono text-sm p-4 rounded-lg mb-4 overflow-x-auto">
+                {{ metar.raw }}
+            </div>
+            <div class="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                    <span class="text-gray-500">Temperature:</span>
+                    <span class="font-bold">{% if metar.temp %}{{ metar.temp }}C{% else %}-{% endif %}</span>
+                </div>
+                <div>
+                    <span class="text-gray-500">Point de rosee:</span>
+                    <span class="font-bold">{% if metar.dewpoint %}{{ metar.dewpoint }}C{% else %}-{% endif %}</span>
+                </div>
+                <div>
+                    <span class="text-gray-500">Vent:</span>
+                    <span class="font-bold">
+                        {% if metar.wind_dir %}{{ metar.wind_dir }}{% endif %}/{{ metar.wind_speed|default:"-" }}kt
+                        {% if metar.wind_gust %}G{{ metar.wind_gust }}kt{% endif %}
+                    </span>
+                </div>
+                <div>
+                    <span class="text-gray-500">Visibilite:</span>
+                    <span class="font-bold">{{ metar.visibility|default:"-" }} SM</span>
+                </div>
+                <div>
+                    <span class="text-gray-500">QNH:</span>
+                    <span class="font-bold">{% if metar.altimeter %}{{ metar.altimeter }} hPa{% else %}-{% endif %}</span>
+                </div>
+                <div>
+                    <span class="text-gray-500">Phenomenes:</span>
+                    <span class="font-bold">{{ metar.weather|default:"Aucun" }}</span>
+                </div>
+            </div>
+            {% if metar.clouds %}
+            <div class="mt-4">
+                <span class="text-gray-500 text-sm">Nuages:</span>
+                <div class="flex flex-wrap gap-2 mt-1">
+                    {% for cloud in metar.clouds %}
+                    <span class="px-2 py-1 bg-gray-100 rounded text-xs">
+                        {{ cloud.cover }} {{ cloud.base }}ft
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            {% else %}
+            <p class="text-gray-500">METAR non disponible pour cet aeroport.</p>
+            {% endif %}
+        </div>
+
+        <!-- TAF -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">TAF (Previsions)</h2>
+            {% if taf %}
+            <div class="bg-gray-900 text-green-400 font-mono text-xs p-4 rounded-lg mb-4 overflow-x-auto whitespace-pre-wrap">{{ taf.raw }}</div>
+            <div class="text-sm text-gray-600">
+                <p><span class="text-gray-500">Validite:</span> {{ taf.valid_from }} - {{ taf.valid_to }}</p>
+            </div>
+            {% else %}
+            <p class="text-gray-500">TAF non disponible pour cet aeroport.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Legende -->
+    <div class="mt-8 bg-gray-50 rounded-xl p-4">
+        <div class="text-sm font-bold text-gray-700 mb-2">Categories de vol</div>
+        <div class="flex flex-wrap gap-4 text-xs">
+            <div class="flex items-center gap-1"><span class="w-4 h-4 bg-green-500 rounded"></span> VFR - Plafond > 3000ft, Visi > 5SM</div>
+            <div class="flex items-center gap-1"><span class="w-4 h-4 bg-blue-500 rounded"></span> MVFR - Plafond 1000-3000ft, Visi 3-5SM</div>
+            <div class="flex items-center gap-1"><span class="w-4 h-4 bg-red-500 rounded"></span> IFR - Plafond 500-1000ft, Visi 1-3SM</div>
+            <div class="flex items-center gap-1"><span class="w-4 h-4 bg-purple-500 rounded"></span> LIFR - Plafond < 500ft, Visi < 1SM</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

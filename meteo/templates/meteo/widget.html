@@ -1,0 +1,21 @@
+<div class="bg-white rounded-xl shadow-sm border p-4">
+    <div class="flex justify-between items-center mb-2">
+        <span class="font-bold text-gray-900">{{ icao }}</span>
+        <span class="px-2 py-1 text-xs font-bold rounded
+            {% if conditions.color == 'green' %}bg-green-100 text-green-800
+            {% elif conditions.color == 'blue' %}bg-blue-100 text-blue-800
+            {% elif conditions.color == 'red' %}bg-red-100 text-red-800
+            {% elif conditions.color == 'purple' %}bg-purple-100 text-purple-800
+            {% else %}bg-gray-100 text-gray-800{% endif %}">
+            {{ conditions.status }}
+        </span>
+    </div>
+    {% if metar %}
+    <div class="text-sm text-gray-600">
+        <div>{{ metar.temp|default:"-" }}C / {{ metar.wind_dir|default:"" }}{{ metar.wind_speed|default:"-" }}kt</div>
+        <div class="text-xs text-gray-400 mt-1">{{ conditions.message }}</div>
+    </div>
+    {% else %}
+    <div class="text-sm text-gray-400">Meteo non disponible</div>
+    {% endif %}
+</div>

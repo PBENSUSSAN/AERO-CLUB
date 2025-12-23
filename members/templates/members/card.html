@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-lg mx-auto px-4 py-12">
+    <div class="text-center mb-8">
+        <h1 class="text-2xl font-bold text-gray-900">Ma Carte de Membre</h1>
+        <p class="text-gray-500">Scannez ce QR code pour verification rapide</p>
+    </div>
+
+    <!-- Carte -->
+    <div class="bg-gradient-to-br from-brand-600 to-brand-800 rounded-2xl shadow-xl p-6 text-white">
+        <div class="flex justify-between items-start mb-6">
+            <div>
+                <div class="text-xs uppercase tracking-wider opacity-75">Aeroclub</div>
+                <div class="text-2xl font-bold">Carte Membre</div>
+            </div>
+            <div class="bg-white rounded-lg p-2">
+                <img src="data:image/png;base64,{{ qr_base64 }}" alt="QR Code" class="w-24 h-24">
+            </div>
+        </div>
+
+        <div class="space-y-2">
+            <div>
+                <div class="text-xs uppercase tracking-wider opacity-75">Nom</div>
+                <div class="text-xl font-bold">{{ member.full_name }}</div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <div class="text-xs uppercase tracking-wider opacity-75">N. Membre</div>
+                    <div class="font-bold">{{ member.member_number|default:"-" }}</div>
+                </div>
+                <div>
+                    <div class="text-xs uppercase tracking-wider opacity-75">Licence</div>
+                    <div class="font-bold">{{ member.license_type }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-6 pt-4 border-t border-white/20 flex justify-between items-center">
+            <div class="flex gap-2">
+                {% if member.is_medical_valid %}
+                <span class="px-2 py-1 bg-green-500/20 rounded text-xs">Medical OK</span>
+                {% else %}
+                <span class="px-2 py-1 bg-red-500/30 rounded text-xs">Medical KO</span>
+                {% endif %}
+                {% if member.is_sep_valid %}
+                <span class="px-2 py-1 bg-green-500/20 rounded text-xs">SEP OK</span>
+                {% else %}
+                <span class="px-2 py-1 bg-red-500/30 rounded text-xs">SEP KO</span>
+                {% endif %}
+            </div>
+            <div class="text-right">
+                <div class="text-xs opacity-75">Statut</div>
+                {% if member.can_fly_solo %}
+                <div class="text-green-300 font-bold">APTE VOL</div>
+                {% else %}
+                <div class="text-red-300 font-bold">NON APTE</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Details -->
+    <div class="mt-8 bg-white rounded-2xl shadow-sm border p-6">
+        <h2 class="font-bold text-gray-900 mb-4">Informations</h2>
+        <div class="grid grid-cols-2 gap-4 text-sm">
+            <div>
+                <span class="text-gray-500">Medical valide jusqu'au:</span>
+                <div class="font-bold {% if not member.is_medical_valid %}text-red-600{% endif %}">
+                    {% if member.medical_validity %}{{ member.medical_validity|date:"d/m/Y" }}{% else %}Non renseigne{% endif %}
+                </div>
+            </div>
+            <div>
+                <span class="text-gray-500">SEP valide jusqu'au:</span>
+                <div class="font-bold {% if not member.is_sep_valid %}text-red-600{% endif %}">
+                    {% if member.sep_validity %}{{ member.sep_validity|date:"d/m/Y" }}{% else %}Non renseigne{% endif %}
+                </div>
+            </div>
+            <div>
+                <span class="text-gray-500">Atterrissages (90j):</span>
+                <div class="font-bold {% if member.landings_last_90_days < 3 %}text-orange-600{% endif %}">
+                    {{ member.landings_last_90_days }}
+                </div>
+            </div>
+            <div>
+                <span class="text-gray-500">Solde compte:</span>
+                <div class="font-bold {% if member.account_balance <= 0 %}text-red-600{% endif %}">
+                    {{ member.account_balance }} EUR
+                </div>
+            </div>
+        </div>
+        <div class="mt-4">
+            <span class="text-gray-500 text-sm">Qualifications:</span>
+            <div class="flex flex-wrap gap-1 mt-1">
+                {% for qual in member.qualifications_list %}
+                <span class="px-2 py-1 bg-brand-100 text-brand-700 rounded text-xs">{{ qual }}</span>
+                {% empty %}
+                <span class="text-gray-400 text-sm">Aucune</span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-6 flex gap-4 justify-center">
+        <a href="{% url 'member_qrcode' %}" download="qrcode_membre.png" class="bg-brand-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-brand-700">
+            Telecharger QR Code
+        </a>
+        <a href="{% url 'profile' %}" class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-bold hover:bg-gray-50">
+            Retour profil
+        </a>
+    </div>
+</div>
+{% endblock %}

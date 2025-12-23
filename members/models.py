@@ -245,6 +245,96 @@ class Member(models.Model):
         return quals
 
 
+class MemberDocument(models.Model):
+    """
+    Documents administratifs des membres (licences, medicaux, assurances, etc.)
+    avec historique et validation.
+    """
+    DOCUMENT_TYPES = [
+        ('LICENSE', 'Licence pilote'),
+        ('MEDICAL', 'Certificat medical'),
+        ('INSURANCE', 'Assurance RC'),
+        ('FFA', 'Licence FFA'),
+        ('RADIO', 'Certificat radiotelephonie'),
+        ('ENGLISH', 'Certificat Anglais OACI'),
+        ('ID', 'Piece d\'identite'),
+        ('CLUB', 'Cotisation club'),
+        ('CHECKOUT', 'Lacher machine'),
+        ('OTHER', 'Autre'),
+    ]
+
+    STATUS_CHOICES = [
+        ('PENDING', 'En attente de validation'),
+        ('VALID', 'Valide'),
+        ('EXPIRED', 'Expire'),
+        ('REJECTED', 'Refuse'),
+    ]
+
+    member = models.ForeignKey(Member, on_delete=models.CASCADE, related_name='documents')
+    document_type = models.CharField("Type de document", max_length=20, choices=DOCUMENT_TYPES)
+    title = models.CharField("Titre", max_length=100)
+    file = models.FileField("Fichier", upload_to='members/documents/%Y/%m/')
+
+    # Dates
+    issue_date = models.DateField("Date d'emission", null=True, blank=True)
+    expiry_date = models.DateField("Date d'expiration", null=True, blank=True)
+    upload_date = models.DateTimeField("Date d'upload", auto_now_add=True)
+
+    # Validation
+    status = models.CharField("Statut", max_length=20, choices=STATUS_CHOICES, default='PENDING')
+    validated_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='validated_documents',
+        verbose_name="Valide par"
+    )
+    validation_date = models.DateTimeField("Date validation", null=True, blank=True)
+    rejection_reason = models.TextField("Motif de refus", blank=True)
+
+    # Metadonnees
+    notes = models.TextField("Notes", blank=True)
+    is_current = models.BooleanField("Document actuel", default=True,
+        help_text="Le document le plus recent de ce type pour ce membre")
+
+    class Meta:
+        verbose_name = "Document membre"
+        verbose_name_plural = "Documents membres"
+        ordering = ['-upload_date']
+
+    def __str__(self):
+        return f"{self.member.user.last_name} - {self.get_document_type_display()} ({self.upload_date.strftime('%d/%m/%Y')})"
+
+    @property
+    def is_expired(self):
+        if not self.expiry_date:
+            return False
+        return self.expiry_date < date.today()
+
+    @property
+    def days_until_expiry(self):
+        if not self.expiry_date:
+            return None
+        delta = self.expiry_date - date.today()
+        return delta.days
+
+    def save(self, *args, **kwargs):
+        # Marquer les anciens documents du meme type comme non courants
+        if self.is_current:
+            MemberDocument.objects.filter(
+                member=self.member,
+                document_type=self.document_type,
+                is_current=True
+            ).exclude(pk=self.pk).update(is_current=False)
+
+        # Mettre a jour le statut si expire
+        if self.expiry_date and self.expiry_date < date.today():
+            self.status = 'EXPIRED'
+
+        super().save(*args, **kwargs)
+
+
 class QualificationType(models.Model):
     """
     Types de qualifications sur types d'avions specifiques.
