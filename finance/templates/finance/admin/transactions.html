@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Transactions - Finance{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-100 py-12">
+    <div class="max-w-6xl mx-auto px-4">
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <a href="{% url 'finance_dashboard' %}" class="text-brand-600 hover:underline text-sm">← Retour</a>
+                <h1 class="text-3xl font-bold text-gray-900 mt-2">📜 Toutes les Transactions</h1>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-6">
+            <form method="get" class="flex flex-wrap gap-4 items-end">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Pilote</label>
+                    <select name="user" class="px-4 py-2 border border-gray-300 rounded-xl">
+                        <option value="">Tous</option>
+                        {% for u in users %}
+                        <option value="{{ u.id }}">{{ u.get_full_name|default:u.username }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                    <select name="type" class="px-4 py-2 border border-gray-300 rounded-xl">
+                        <option value="">Tous</option>
+                        <option value="CREDIT">Crédits</option>
+                        <option value="DEBIT">Débits</option>
+                    </select>
+                </div>
+                <button type="submit"
+                    class="px-6 py-2 bg-brand-600 text-white rounded-xl font-bold hover:bg-brand-700">Filtrer</button>
+            </form>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+            <table class="w-full">
+                <thead class="bg-gray-50 text-xs uppercase text-gray-500">
+                    <tr>
+                        <th class="px-6 py-3 text-left">Date</th>
+                        <th class="px-6 py-3 text-left">Pilote</th>
+                        <th class="px-6 py-3 text-left">Description</th>
+                        <th class="px-6 py-3 text-right">Montant</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for t in transactions %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 text-gray-600">{{ t.date|date:"d/m/Y H:i" }}</td>
+                        <td class="px-6 py-4 font-medium text-gray-900">{{ t.user.get_full_name|default:t.user.username
+                            }}</td>
+                        <td class="px-6 py-4 text-gray-600">{{ t.description }}</td>
+                        <td
+                            class="px-6 py-4 text-right font-bold {% if t.type == 'CREDIT' %}text-green-600{% else %}text-red-600{% endif %}">
+                            {% if t.type == 'CREDIT' %}+{% else %}-{% endif %}{{ t.amount }}€
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="px-6 py-8 text-center text-gray-400">Aucune transaction trouvée.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

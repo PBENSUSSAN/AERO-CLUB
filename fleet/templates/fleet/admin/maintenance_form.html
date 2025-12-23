@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Ajouter échéance - {{ aircraft.registration }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-100 py-12">
+    <div class="max-w-lg mx-auto px-4">
+        <div class="bg-white rounded-3xl shadow-xl p-8">
+            <div class="mb-8">
+                <a href="{% url 'admin_dashboard' %}" class="text-brand-600 hover:underline text-sm">← Retour</a>
+                <h1 class="text-2xl font-bold text-gray-900 mt-4">Ajouter une échéance</h1>
+                <p class="text-gray-500">Pour {{ aircraft.registration }} ({{ aircraft.model_name }})</p>
+            </div>
+
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Type de maintenance</label>
+                    <input type="text" name="title" required placeholder="Visite 100h, VGP, etc."
+                        class="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Échéance Date</label>
+                        <input type="date" name="due_at_date"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Échéance Heures</label>
+                        <input type="text" name="due_at_hours" placeholder="2500" inputmode="decimal"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                    </div>
+                </div>
+
+                <p class="text-sm text-gray-500">Remplissez au moins un des deux champs (date ou heures).</p>
+
+                <div class="pt-4 flex gap-4">
+                    <a href="{% url 'admin_dashboard' %}"
+                        class="flex-1 text-center py-3 px-4 border border-gray-300 rounded-xl font-bold text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                        Annuler
+                    </a>
+                    <button type="submit"
+                        class="flex-1 py-3 px-4 bg-brand-600 text-white rounded-xl font-bold hover:bg-brand-700 transition-colors">
+                        Ajouter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

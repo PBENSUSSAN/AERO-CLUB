@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Retour de Vol - AéroClub{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-12">
+    <div class="mb-8 text-center">
+        <h1 class="text-3xl font-bold text-main">Carnet de Route Numérique</h1>
+        <p class="text-muted">Enregistrement du vol pour {{ aircraft.registration }}</p>
+    </div>
+
+    <form method="post" class="bg-card shadow-xl rounded-3xl p-8 border border-border space-y-6">
+        {% csrf_token %}
+
+        <!-- INFO VOL -->
+        <div class="grid grid-cols-2 gap-6">
+            <div>
+                <label class="block text-sm font-medium text-muted mb-1">Pilote</label>
+                <input type="text" value="{{ user.first_name }} {{ user.last_name }}" disabled
+                    class="w-full bg-page border border-border rounded-xl px-4 py-2 text-main">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-muted mb-1">Date</label>
+                <input type="date" value="{{ today|date:'Y-m-d' }}" disabled
+                    class="w-full bg-page border border-border rounded-xl px-4 py-2 text-main">
+            </div>
+        </div>
+
+        <hr class="border-border">
+
+        <!-- HORAIRES -->
+        <h3 class="font-bold text-main">Horaires (UTC)</h3>
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label for="block_off" class="block text-xs font-bold uppercase text-muted mb-1">Bloc Départ</label>
+                <input type="time" name="block_off" required
+                    class="w-full border border-border rounded-xl px-4 py-2 focus:ring-brand-500 outline-none">
+            </div>
+            <div>
+                <label for="block_on" class="block text-xs font-bold uppercase text-muted mb-1">Bloc Arrivée</label>
+                <input type="time" name="block_on" required
+                    class="w-full border border-border rounded-xl px-4 py-2 focus:ring-brand-500 outline-none">
+            </div>
+        </div>
+
+        <!-- COMPTEURS & ATTERRISSAGES -->
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-xs font-bold uppercase text-muted mb-1">Compteur Départ</label>
+                <input type="number" step="0.01" name="hour_meter_start" value="{{ meter_start }}" readonly
+                    class="w-full bg-page border border-border rounded-xl px-4 py-2 text-muted">
+            </div>
+            <div>
+                <label class="block text-xs font-bold uppercase text-muted mb-1">Compteur Arrivée</label>
+                <input type="number" step="0.01" name="hour_meter_end" required
+                    class="w-full border border-border rounded-xl px-4 py-2 focus:ring-brand-500 outline-none">
+            </div>
+        </div>
+
+        <div>
+            <label for="landings" class="block text-xs font-bold uppercase text-muted mb-1">Nombre
+                d'atterrissages</label>
+            <input type="number" name="landings_count" value="1" min="1"
+                class="w-full border border-border rounded-xl px-4 py-2 focus:ring-brand-500 outline-none">
+        </div>
+
+        <hr class="border-border">
+
+        <!-- TECHNIQUE -->
+        <h3 class="font-bold text-main">Technique</h3>
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label for="fuel" class="block text-sm text-muted">Essence Ajoutée (L)</label>
+                <input type="number" step="0.1" name="fuel_added" value="0"
+                    class="w-full border border-border rounded-xl px-4 py-2 focus:ring-brand-500 outline-none">
+            </div>
+            <div>
+                <label for="oil" class="block text-sm text-muted">Huile Ajoutée (L)</label>
+                <input type="number" step="0.1" name="oil_added" value="0"
+                    class="w-full border border-border rounded-xl px-4 py-2 focus:ring-brand-500 outline-none">
+            </div>
+        </div>
+
+        <div>
+            <label for="complaints" class="block text-sm Font-bold text-red-600 mb-1">Observations / Pannes
+                (Squawks)</label>
+            <textarea name="complaints" rows="3" placeholder="RAS ou description de la panne..."
+                class="w-full border border-border rounded-xl px-4 py-2 focus:ring-red-500 outline-none"></textarea>
+            <p class="text-xs text-muted mt-1">Si vous signalez une panne, l'avion sera marqué comme "À vérifier".</p>
+        </div>
+
+        <button type="submit"
+            class="w-full bg-brand-600 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-brand-500 transition-all">
+            Enregistrer le Vol
+        </button>
+
+    </form>
+</div>
+{% endblock %}

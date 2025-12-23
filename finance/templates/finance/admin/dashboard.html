@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block title %}Finance - Administration{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-100">
+    <!-- Header -->
+    <div class="bg-green-800 text-white py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 class="text-3xl font-bold">💰 Gestion Financière</h1>
+            <p class="text-green-100/80 mt-2">Suivi des comptes, transactions et crédits</p>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Messages -->
+        {% if messages %}
+        <div class="mb-6">
+            {% for message in messages %}
+            <div
+                class="p-4 rounded-xl mb-2 {% if message.tags == 'success' %}bg-green-100 text-green-800{% elif message.tags == 'error' %}bg-red-100 text-red-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <div class="text-3xl font-bold text-green-600">{{ total_credits }}€</div>
+                <div class="text-gray-500 text-sm">Total Crédits</div>
+            </div>
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <div class="text-3xl font-bold text-red-600">{{ total_debits }}€</div>
+                <div class="text-gray-500 text-sm">Total Débits</div>
+            </div>
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <div class="text-3xl font-bold text-brand-600">{{ pilots_count }}</div>
+                <div class="text-gray-500 text-sm">Pilotes</div>
+            </div>
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <a href="{% url 'finance_credit_account' %}"
+                    class="flex items-center justify-center gap-2 text-green-600 hover:text-green-700 font-bold">
+                    <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Créditer un compte
+                </a>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <!-- Pilots List -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                        <h2 class="text-xl font-bold text-gray-900">👥 Comptes Pilotes</h2>
+                    </div>
+                    <table class="w-full">
+                        <thead class="bg-gray-50 text-xs uppercase text-gray-500">
+                            <tr>
+                                <th class="px-6 py-3 text-left">Pilote</th>
+                                <th class="px-6 py-3 text-left">Email</th>
+                                <th class="px-6 py-3 text-right">Solde</th>
+                                <th class="px-6 py-3 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            {% for pilot in pilots %}
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 font-bold text-gray-900">
+                                    {{ pilot.user.first_name }} {{ pilot.user.last_name }}
+                                    {% if not pilot.user.first_name %}{{ pilot.user.username }}{% endif %}
+                                </td>
+                                <td class="px-6 py-4 text-gray-600">{{ pilot.user.email }}</td>
+                                <td
+                                    class="px-6 py-4 text-right font-bold {% if pilot.account_balance >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                                    {{ pilot.account_balance }}€
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <a href="{% url 'finance_pilot_detail' pilot.user.id %}"
+                                        class="text-brand-600 hover:text-brand-800 mr-3">Détails</a>
+                                    <a href="{% url 'finance_credit_account_user' pilot.user.id %}"
+                                        class="text-green-600 hover:text-green-800">Créditer</a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="px-6 py-8 text-center text-gray-400">Aucun pilote enregistré.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div>
+                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                        <h2 class="text-xl font-bold text-gray-900">📜 Dernières Opérations</h2>
+                        <a href="{% url 'finance_transactions' %}" class="text-sm text-brand-600 hover:underline">Voir
+                            tout →</a>
+                    </div>
+                    <div class="divide-y divide-gray-100">
+                        {% for t in recent_transactions %}
+                        <div class="px-4 py-3 hover:bg-gray-50">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="font-medium text-gray-800 text-sm">{{ t.user.username }}</div>
+                                    <div class="text-xs text-gray-500">{{ t.description|truncatechars:25 }}</div>
+                                </div>
+                                <div class="text-right">
+                                    <div
+                                        class="font-bold {% if t.type == 'CREDIT' %}text-green-600{% else %}text-red-600{% endif %}">
+                                        {% if t.type == 'CREDIT' %}+{% else %}-{% endif %}{{ t.amount }}€
+                                    </div>
+                                    <div class="text-xs text-gray-400">{{ t.date|date:"d/m" }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="px-6 py-8 text-center text-gray-400">
+                            <p>Aucune transaction</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mt-6">
+                    <div class="px-6 py-4 border-b border-gray-100">
+                        <h2 class="text-xl font-bold text-gray-900">🚀 Actions</h2>
+                    </div>
+                    <div class="p-4 space-y-3">
+                        <a href="{% url 'finance_credit_account' %}"
+                            class="block w-full text-center py-3 px-4 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition-colors">
+                            + Créditer un compte
+                        </a>
+                        <a href="{% url 'finance_transactions' %}"
+                            class="block w-full text-center py-3 px-4 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition-colors">
+                            Toutes les transactions
+                        </a>
+                        <a href="{% url 'admin_dashboard' %}"
+                            class="block w-full text-center py-3 px-4 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition-colors">
+                            ← Retour Flotte
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

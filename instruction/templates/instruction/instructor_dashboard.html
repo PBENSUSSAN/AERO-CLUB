@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-12">
+    <div class="flex justify-between items-center mb-12">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Espace Instructeur</h1>
+            <p class="text-gray-500">Suivi et validation des élèves.</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        <!-- Left: Student List -->
+        <div class="lg:col-span-2">
+            <h2 class="font-bold text-xl mb-6">Mes Élèves</h2>
+            <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50 text-xs uppercase text-gray-500">
+                        <tr>
+                            <th class="px-6 py-4">Nom</th>
+                            <th class="px-6 py-4">Dernière leçon</th>
+                            <th class="px-6 py-4 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        {% for student in students %}
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4 font-medium text-gray-900">
+                                {{ student.first_name }} {{ student.last_name }}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500">
+                                {% with last_lesson=student.lessons_received.last %}
+                                {% if last_lesson %}
+                                {{ last_lesson.date|date:"d/m/Y" }} - {{ last_lesson.title }}
+                                {% else %}
+                                -
+                                {% endif %}
+                                {% endwith %}
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <a href="{% url 'log_lesson' student.id %}"
+                                    class="inline-block bg-brand-600 text-white text-xs font-bold px-3 py-2 rounded-lg hover:bg-brand-700 transition-colors">
+                                    + Noter
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="px-6 py-8 text-center text-gray-400">
+                                Aucun élève inscrit.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Right: Recent Activity -->
+        <div>
+            <h2 class="font-bold text-xl mb-6">Activité Récente</h2>
+            <div class="space-y-4">
+                {% for lesson in my_lessons %}
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 text-sm">
+                    <div class="flex justify-between text-xs text-gray-400 mb-2">
+                        <span>{{ lesson.date|date:"d M H:i" }}</span>
+                        <span>{{ lesson.student.first_name }} {{ lesson.student.last_name|first }}.</span>
+                    </div>
+                    <div class="font-bold text-gray-800">{{ lesson.title }}</div>
+                    <div class="text-gray-500 mt-1 truncate">{{ lesson.comments }}</div>
+                </div>
+                {% empty %}
+                <p class="text-gray-400 text-sm">Aucune activité récente.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

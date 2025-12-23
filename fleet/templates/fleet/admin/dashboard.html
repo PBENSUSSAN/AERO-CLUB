@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}Administration - AéroClub{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-100">
+    <!-- Header -->
+    <div class="bg-brand-900 text-white py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 class="text-3xl font-bold">🛠️ Tableau de Bord Admin</h1>
+            <p class="text-brand-100/80 mt-2">Gérez votre flotte et la maintenance</p>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Messages -->
+        {% if messages %}
+        <div class="mb-6">
+            {% for message in messages %}
+            <div
+                class="p-4 rounded-xl mb-2 {% if message.tags == 'success' %}bg-green-100 text-green-800{% elif message.tags == 'error' %}bg-red-100 text-red-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <div class="text-3xl font-bold text-brand-600">{{ total_aircrafts }}</div>
+                <div class="text-gray-500 text-sm">Avions Total</div>
+            </div>
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <div class="text-3xl font-bold text-green-600">{{ active_aircrafts }}</div>
+                <div class="text-gray-500 text-sm">Disponibles</div>
+            </div>
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <div class="text-3xl font-bold text-orange-600">{{ maintenance_alerts|length }}</div>
+                <div class="text-gray-500 text-sm">Alertes Maintenance</div>
+            </div>
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <a href="{% url 'admin_aircraft_add' %}"
+                    class="flex items-center justify-center gap-2 text-brand-600 hover:text-brand-700 font-bold">
+                    <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Ajouter un avion
+                </a>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <!-- Fleet List -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                        <h2 class="text-xl font-bold text-gray-900">✈️ Flotte</h2>
+                        <a href="{% url 'admin_maintenance' %}" class="text-sm text-brand-600 hover:underline">Voir
+                            toutes les maintenances →</a>
+                    </div>
+                    <table class="w-full">
+                        <thead class="bg-gray-50 text-xs uppercase text-gray-500">
+                            <tr>
+                                <th class="px-6 py-3 text-left">Immat</th>
+                                <th class="px-6 py-3 text-left">Modèle</th>
+                                <th class="px-6 py-3 text-left">Heures</th>
+                                <th class="px-6 py-3 text-left">Tarif/h</th>
+                                <th class="px-6 py-3 text-left">Statut</th>
+                                <th class="px-6 py-3 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            {% for aircraft in aircrafts %}
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 font-bold text-gray-900">{{ aircraft.registration }}</td>
+                                <td class="px-6 py-4 text-gray-600">{{ aircraft.model_name }}</td>
+                                <td class="px-6 py-4 text-gray-600">{{ aircraft.current_hours }}h</td>
+                                <td class="px-6 py-4 text-gray-600">{{ aircraft.hourly_rate }}€</td>
+                                <td class="px-6 py-4">
+                                    <span class="px-2 py-1 rounded-full text-xs font-bold
+                                        {% if aircraft.status == 'available' %}bg-green-100 text-green-800
+                                        {% elif aircraft.status == 'maintenance' %}bg-orange-100 text-orange-800
+                                        {% else %}bg-red-100 text-red-800{% endif %}">
+                                        {{ aircraft.get_status_display }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <a href="{% url 'admin_aircraft_edit' aircraft.id %}"
+                                        class="text-brand-600 hover:text-brand-800 mr-3">Modifier</a>
+                                    <a href="{% url 'admin_aircraft_delete' aircraft.id %}"
+                                        class="text-red-600 hover:text-red-800">Suppr.</a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="px-6 py-8 text-center text-gray-400">Aucun avion enregistré.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Sidebar: Maintenance Alerts -->
+            <div>
+                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-100">
+                        <h2 class="text-xl font-bold text-gray-900">⚠️ Alertes Maintenance</h2>
+                    </div>
+                    <div class="p-4">
+                        {% for alert in maintenance_alerts %}
+                        <div class="p-4 mb-3 bg-orange-50 rounded-xl border border-orange-200">
+                            <div class="font-bold text-orange-800">{{ alert.aircraft.registration }}</div>
+                            <div class="text-sm text-orange-700">{{ alert.title }}</div>
+                            <div class="text-xs text-orange-600 mt-1">
+                                {% if alert.due_at_date %}Échéance : {{ alert.due_at_date|date:"d/m/Y" }}{% endif %}
+                                {% if alert.due_at_hours %}À {{ alert.due_at_hours }}h{% endif %}
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center py-8 text-gray-400">
+                            <p>✅ Aucune alerte</p>
+                            <p class="text-sm mt-1">Tout est en ordre !</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mt-6">
+                    <div class="px-6 py-4 border-b border-gray-100">
+                        <h2 class="text-xl font-bold text-gray-900">🚀 Actions Rapides</h2>
+                    </div>
+                    <div class="p-4 space-y-3">
+                        <a href="{% url 'admin_aircraft_add' %}"
+                            class="block w-full text-center py-3 px-4 bg-brand-600 text-white rounded-xl font-bold hover:bg-brand-700 transition-colors">
+                            + Ajouter un avion
+                        </a>
+                        <a href="{% url 'admin_maintenance' %}"
+                            class="block w-full text-center py-3 px-4 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition-colors">
+                            Gérer la maintenance
+                        </a>
+                        <a href="{% url 'admin:index' %}"
+                            class="block w-full text-center py-3 px-4 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition-colors">
+                            Admin Django
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

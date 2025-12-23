@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Connexion - AéroClub{% endblock %}
+
+{% block content %}
+<div class="min-h-[80vh] flex items-center justify-center px-4 py-12">
+    <div class="max-w-md w-full space-y-8">
+
+        <!-- Header -->
+        <div class="text-center">
+            <div
+                class="mx-auto w-16 h-16 bg-brand-600 rounded-2xl flex items-center justify-center text-white font-bold text-3xl shadow-lg transform -rotate-6 mb-6">
+                A
+            </div>
+            <h2 class="text-3xl font-bold text-main">Connexion</h2>
+            <p class="mt-2 text-muted">Accédez à votre espace pilote</p>
+        </div>
+
+        <!-- Form Card -->
+        <div class="bg-card rounded-3xl shadow-xl border border-border p-8">
+
+            {% if form.errors %}
+            <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
+                <strong>Identifiants incorrects.</strong> Veuillez réessayer.
+            </div>
+            {% endif %}
+
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+
+                <div>
+                    <label for="username" class="block text-sm font-medium text-main mb-2">Nom d'utilisateur</label>
+                    <input type="text" name="username" id="username" autocomplete="username" required autofocus
+                        class="w-full px-4 py-3 border border-border rounded-xl shadow-sm placeholder-muted focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all"
+                        placeholder="votre.nom">
+                </div>
+
+                <div>
+                    <label for="password" class="block text-sm font-medium text-main mb-2">Mot de passe</label>
+                    <input type="password" name="password" id="password" autocomplete="current-password" required
+                        class="w-full px-4 py-3 border border-border rounded-xl shadow-sm placeholder-muted focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all"
+                        placeholder="••••••••">
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <input type="checkbox" name="remember" id="remember"
+                            class="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded">
+                        <label for="remember" class="ml-2 block text-sm text-gray-600">Se souvenir de moi</label>
+                    </div>
+                    <a href="#" class="text-sm font-medium text-brand-600 hover:text-brand-500">Mot de passe oublié
+                        ?</a>
+                </div>
+
+                <button type="submit"
+                    class="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-lg text-base font-bold text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-all transform hover:scale-[1.02]">
+                    Se connecter
+                </button>
+            </form>
+        </div>
+
+        <!-- Footer -->
+        <p class="text-center text-sm text-muted">
+            Pas encore membre ?
+            <a href="#" class="font-medium text-brand-600 hover:text-brand-500">Contactez le club</a>
+        </p>
+
+    </div>
+</div>
+{% endblock %}

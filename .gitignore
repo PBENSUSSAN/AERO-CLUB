@@ -1,0 +1,109 @@
+# ============================================
+# AEROCLUB PROJECT - .gitignore
+# ============================================
+
+# ------------ Python ------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ------------ Virtual Environment ------------
+venv/
+ENV/
+env/
+.venv/
+
+# ------------ Django ------------
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+*.pot
+*.pyc
+
+# Media files (uploaded by users)
+media/
+
+# Static files collected
+staticfiles/
+
+# ------------ IDE & Editors ------------
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# ------------ OS ------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ------------ Environment Variables ------------
+.env
+.env.local
+.env.production
+*.env
+
+# ------------ Secrets ------------
+secrets.json
+credentials.json
+*.pem
+*.key
+
+# ------------ Testing ------------
+.coverage
+htmlcov/
+.tox/
+.nox/
+.pytest_cache/
+coverage.xml
+*.cover
+.hypothesis/
+
+# ------------ Jupyter Notebooks ------------
+.ipynb_checkpoints/
+
+# ------------ Celery ------------
+celerybeat-schedule
+celerybeat.pid
+
+# ------------ Backup files ------------
+*.bak
+*.backup
+*.old
+
+# ------------ Documentation builds ------------
+docs/_build/
+
+# ------------ Cache ------------
+.cache/
+*.cache

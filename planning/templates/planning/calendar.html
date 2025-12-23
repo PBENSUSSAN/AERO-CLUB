@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="h-[calc(100vh-5rem)] flex flex-col md:flex-row">
+
+    <!-- Sidebar / Filters -->
+    <div class="w-full md:w-64 bg-white border-r border-gray-200 p-6 flex flex-col gap-6">
+        <div>
+            <h2 class="text-xl font-bold text-gray-900 mb-4">Planning</h2>
+            <button
+                class="w-full bg-brand-600 text-white rounded-xl py-3 font-semibold shadow-lg hover:bg-brand-500 transition-all">
+                + Nouvelle Résa
+            </button>
+        </div>
+
+        <div>
+            <h3 class="font-semibold text-gray-500 text-sm uppercase tracking-wider mb-3">Avions</h3>
+            <div class="space-y-2">
+                {% for aircraft in aircrafts %}
+                <label class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors">
+                    <input type="checkbox" checked
+                        class="w-5 h-5 text-brand-600 rounded border-gray-300 focus:ring-brand-500">
+                    <div class="flex-1">
+                        <div class="font-bold text-gray-800">{{ aircraft.registration }}</div>
+                        <div class="text-xs text-gray-500">{{ aircraft.model_name }}</div>
+                    </div>
+                    <div class="w-3 h-3 rounded-full bg-brand-500"></div>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Calendar Area -->
+    <div class="flex-1 relative bg-gray-50 p-4 md:p-6 overflow-hidden">
+        <div id="calendar" class="h-full bg-white rounded-3xl shadow-sm border border-gray-200 p-4"></div>
+    </div>
+
+</div>
+
+<!-- FullCalendar Library -->
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'timeGridWeek',
+            locale: 'fr',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            slotMinTime: '08:00:00',
+            slotMaxTime: '20:00:00',
+            allDaySlot: false,
+            events: "{% url 'api_events' %}", // Load events from our API
+            eventClick: function (info) {
+                alert('Réservation: ' + info.event.title + '\nPilote: ' + info.event.extendedProps.pilot);
+            },
+            dateClick: function (info) {
+                alert('Créer une réservation le ' + info.dateStr);
+            }
+        });
+        calendar.render();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Notre Flotte</h1>
+        <p class="text-xl text-gray-600 max-w-2xl mx-auto">Découvrez nos appareils disponibles au club.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {% for aircraft in aircrafts %}
+        <div
+            class="bg-white rounded-3xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 group flex flex-col">
+
+            <!-- Image Header -->
+            <div class="relative h-64 overflow-hidden flex-shrink-0">
+                {% if aircraft.image %}
+                <img src="{{ aircraft.image.url }}" alt="{{ aircraft.registration }}"
+                    class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                {% else %}
+                <div class="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
+                    <span class="text-lg">Pas d'image</span>
+                </div>
+                {% endif %}
+
+                <div class="absolute top-4 right-4">
+                    <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider
+                        {% if aircraft.status == 'AVAILABLE' %}bg-green-100 text-green-800
+                        {% elif aircraft.status == 'MAINTENANCE' %}bg-orange-100 text-orange-800
+                        {% else %}bg-red-100 text-red-800{% endif %}">
+                        {{ aircraft.get_status_display }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Card Body -->
+            <div class="p-6 flex flex-col flex-1">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="text-2xl font-bold text-gray-900">{{ aircraft.registration }}</h3>
+                        <p class="text-gray-500 font-medium">{{ aircraft.model_name }}</p>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-100 pt-4 mt-auto">
+                    <div class="flex justify-between text-sm text-gray-500 mb-4">
+                        <span>Potentiel Total</span>
+                        <span class="font-mono font-semibold text-gray-700">{{ aircraft.current_hours }} h</span>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+                        <span class="text-2xl font-bold text-gray-900">{{ aircraft.hourly_rate }}€<span
+                                class="text-sm font-normal text-gray-500 text-base">/h</span></span>
+
+                        <div class="flex gap-2">
+                            <!-- New Action Button -->
+                            <a href="{% url 'log_flight' aircraft.id %}"
+                                class="px-4 py-2 bg-gray-900 text-white text-sm font-semibold rounded-lg hover:bg-gray-800 transition-colors shadow-md">
+                                Saisir Vol
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        {% empty %}
+        <div class="col-span-3 text-center py-20 bg-gray-50 rounded-3xl">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">Aucun appareil</h3>
+            <p class="mt-1 text-sm text-gray-500">Commencez par ajouter des avions depuis l'admin.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-12">
+    <div class="text-center mb-12">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Mon Livret de Progression</h1>
+        <p class="text-gray-500">Suivi pédagogique de votre formation.</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center">
+            <div class="text-3xl font-bold text-brand-600">{{ total_lessons }}</div>
+            <div class="text-sm text-gray-500">Séances</div>
+        </div>
+        <!-- On pourra ajouter d'autres stats total heures etc -->
+    </div>
+
+    <!-- Timeline -->
+    <div
+        class="relative space-y-8 before:absolute before:inset-0 before:ml-5 before:h-full before:w-0.5 before:-translate-x-px before:bg-gradient-to-b before:from-transparent before:via-gray-300 before:to-transparent">
+
+        {% for lesson in lessons %}
+        <div class="relative flex items-start group">
+            <div
+                class="absolute left-0 mt-5 ml-px h-2 w-2 -translate-x-1/2 rounded-full border border-white bg-gray-300 group-hover:bg-brand-500 transition-colors">
+            </div> <!-- Dot -->
+
+            <div
+                class="ml-12 p-6 bg-white rounded-2xl shadow-sm border border-gray-100 w-full hover:shadow-md transition-shadow">
+                <div class="flex flex-col md:flex-row justify-between md:items-center mb-4 gap-2">
+                    <div>
+                        <span class="text-xs font-bold text-brand-600 uppercase tracking-wider">{{ lesson.date|date:"d F
+                            Y" }}</span>
+                        <h3 class="text-xl font-bold text-gray-900 mt-1">{{ lesson.title }}</h3>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <!-- Grade Badge -->
+                        <span class="px-3 py-1 rounded-full text-xs font-bold
+                            {% if lesson.grade >= 4 %}bg-green-100 text-green-800
+                            {% elif lesson.grade == 3 %}bg-blue-100 text-blue-800
+                            {% else %}bg-orange-100 text-orange-800{% endif %}">
+                            Note : {{ lesson.grade }}/5
+                        </span>
+                    </div>
+                </div>
+
+                <div class="prose prose-sm text-gray-600 mb-4">
+                    {{ lesson.comments|linebreaks }}
+                </div>
+
+                {% if lesson.next_steps %}
+                <div class="mt-4 pt-4 border-t border-gray-100">
+                    <p class="text-xs font-bold text-gray-400 uppercase mb-1">Prochaine étape</p>
+                    <p class="text-sm text-gray-700 italic">"{{ lesson.next_steps }}"</p>
+                </div>
+                {% endif %}
+
+                <div class="mt-4 flex items-center gap-2 text-xs text-gray-400">
+                    <div
+                        class="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center font-bold text-gray-500">
+                        {{ lesson.instructor.first_name|first }}
+                    </div>
+                    Instructeur : {{ lesson.instructor.first_name }} {{ lesson.instructor.last_name }}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="ml-12 p-8 bg-gray-50 rounded-2xl border border-dashed border-gray-300 text-center text-gray-500">
+            Aucune leçon enregistrée pour le moment.
+            <br>Bon vol ! ✈️
+        </div>
+        {% endfor %}
+
+    </div>
+</div>
+{% endblock %}

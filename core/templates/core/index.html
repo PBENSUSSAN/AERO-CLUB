@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="relative h-[85vh] flex items-center justify-center overflow-hidden">
+    <!-- Background Image with Overlay -->
+    <div class="absolute inset-0 z-0">
+        <img src="https://images.unsplash.com/photo-1542296332-2e44a996aa0b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80"
+            alt="Avion au soleil couchant" class="w-full h-full object-cover">
+        <div class="absolute inset-0 bg-gradient-to-r from-brand-900/90 to-brand-900/40"></div>
+    </div>
+
+    <!-- Hero Content -->
+    <div class="relative z-10 text-center px-4 max-w-4xl mx-auto">
+        <span
+            class="inline-block py-1 px-3 rounded-full bg-brand-500/20 border border-brand-400/30 text-brand-100 text-sm font-semibold mb-6 backdrop-blur-sm">
+            Bienvenue à bord
+        </span>
+        <h1 class="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight tracking-tight">
+            Volez plus haut,<br>Gérez <span class="text-brand-400">simplement.</span>
+        </h1>
+        <p class="text-xl text-brand-100/90 mb-10 max-w-2xl mx-auto leading-relaxed">
+            La plateforme tout-en-un pour votre aéroclub. Réservation, carnet de vol, instructeurs et maintenance en un
+            clic.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{% url 'calendar' %}"
+                class="bg-brand-600 text-white px-8 py-4 rounded-full font-bold text-lg shadow-xl shadow-brand-600/30 hover:bg-brand-500 hover:scale-105 transition-all duration-300">
+                Réserver un vol
+            </a>
+            <a href="#equipe"
+                class="bg-white/10 backdrop-blur-md border border-white/20 text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-white/20 transition-all duration-300">
+                Découvrir le club
+            </a>
+        </div>
+
+        <!-- Weather Widget -->
+        <div class="mt-16 flex justify-center">
+            <div
+                class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-6 flex flex-col md:flex-row items-center gap-6 max-w-2xl w-full shadow-2xl">
+                <div class="flex items-center gap-4 border-r border-white/10 pr-6">
+                    <div
+                        class="w-12 h-12 rounded-2xl flex items-center justify-center {% if weather.status == 'VFR' %}bg-green-500/20 text-green-400{% elif weather.status == 'IFR' %}bg-red-500/20 text-red-400{% else %}bg-gray-500/20 text-gray-400{% endif %}">
+                        {% if weather.status == 'VFR' %}
+                        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                        {% else %}
+                        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                        </svg>
+                        {% endif %}
+                    </div>
+                    <div class="text-left">
+                        <p class="text-xs font-bold uppercase tracking-wider text-brand-300">Météo LFNE</p>
+                        <p class="text-xl font-bold text-white tracking-tight">{{ weather.status }}</p>
+                    </div>
+                </div>
+                <div class="flex-1 text-left">
+                    <p class="text-xs font-mono text-brand-200/70 mb-1">METAR TEMPS RÉEL</p>
+                    <p class="text-sm font-mono text-white/90 leading-tight">
+                        {{ weather.raw|default:"Données non disponibles actullement." }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Grid -->
+<section class="py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-brand-600 font-semibold tracking-wide uppercase text-sm mb-2">Fonctionnalités</h2>
+            <h3 class="text-4xl font-bold text-gray-900">Tout votre club au creux de la main</h3>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+            <!-- Feature 1 -->
+            <div
+                class="group p-8 rounded-3xl bg-gray-50 hover:bg-white hover:shadow-2xl hover:shadow-brand-900/10 transition-all duration-300 border border-gray-100">
+                <div
+                    class="w-14 h-14 bg-brand-100 rounded-2xl flex items-center justify-center text-brand-600 mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <h4 class="text-xl font-bold text-gray-900 mb-3">Planning Intelligent</h4>
+                <p class="text-gray-600 leading-relaxed">Réservez votre appareil en quelques secondes. Le système
+                    vérifie automatiquement vos licences et la disponibilité.</p>
+            </div>
+
+            <!-- Feature 2 -->
+            <div
+                class="group p-8 rounded-3xl bg-gray-50 hover:bg-white hover:shadow-2xl hover:shadow-brand-900/10 transition-all duration-300 border border-gray-100">
+                <div
+                    class="w-14 h-14 bg-brand-100 rounded-2xl flex items-center justify-center text-brand-600 mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                    </svg>
+                </div>
+                <h4 class="text-xl font-bold text-gray-900 mb-3">Suivi de Flotte</h4>
+                <p class="text-gray-600 leading-relaxed">Visualisez les potentiels restants en temps réel. Signalez une
+                    anomalie mécanique directement depuis le parking.</p>
+            </div>
+
+            <!-- Feature 3 -->
+            <div
+                class="group p-8 rounded-3xl bg-gray-50 hover:bg-white hover:shadow-2xl hover:shadow-brand-900/10 transition-all duration-300 border border-gray-100">
+                <div
+                    class="w-14 h-14 bg-brand-100 rounded-2xl flex items-center justify-center text-brand-600 mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                </div>
+                <h4 class="text-xl font-bold text-gray-900 mb-3">Administratif Simplifié</h4>
+                <p class="text-gray-600 leading-relaxed">Facturation automatique, suivi des comptes pilotes, alertes
+                    validité licences. Tout est géré pour vous.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Team Section -->
+<section id="equipe" class="py-24 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-brand-600 font-semibold tracking-wide uppercase text-sm mb-2">Notre Équipe</h2>
+            <h3 class="text-4xl font-bold text-gray-900">Les instructeurs à votre service</h3>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {% for instructor in instructors %}
+            <div
+                class="bg-white rounded-3xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 group">
+                <div class="h-48 bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center">
+                    <div
+                        class="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center text-white text-4xl font-bold backdrop-blur-sm">
+                        {{ instructor.user.first_name|first }}{{ instructor.user.last_name|first }}
+                    </div>
+                </div>
+                <div class="p-6 text-center">
+                    <h4 class="text-xl font-bold text-gray-900">{{ instructor.user.first_name }} {{
+                        instructor.user.last_name }}</h4>
+                    <p class="text-brand-600 font-medium mb-3">Instructeur</p>
+                    {% if instructor.phone_number %}
+                    <a href="tel:{{ instructor.phone_number }}"
+                        class="inline-flex items-center gap-2 text-gray-500 hover:text-brand-600 transition-colors">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                        </svg>
+                        {{ instructor.phone_number }}
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-full text-center py-12 text-gray-400">
+                <p>Les instructeurs seront bientôt présentés ici.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Contact Form Section -->
+<section id="contact" class="py-24 bg-white">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-brand-600 font-semibold tracking-wide uppercase text-sm mb-2">Contact</h2>
+            <h3 class="text-4xl font-bold text-gray-900">Une question ? Écrivez-nous</h3>
+        </div>
+
+        <form class="bg-gray-50 rounded-3xl p-8 md:p-12 shadow-lg border border-gray-100">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Votre nom</label>
+                    <input type="text" id="name" name="name" required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all"
+                        placeholder="Jean Dupont">
+                </div>
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Votre email</label>
+                    <input type="email" id="email" name="email" required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all"
+                        placeholder="jean@exemple.fr">
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <label for="subject" class="block text-sm font-medium text-gray-700 mb-2">Sujet</label>
+                <input type="text" id="subject" name="subject" required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all"
+                    placeholder="Demande d'information">
+            </div>
+
+            <div class="mb-8">
+                <label for="message" class="block text-sm font-medium text-gray-700 mb-2">Votre message</label>
+                <textarea id="message" name="message" rows="5" required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all resize-none"
+                    placeholder="Bonjour, je souhaiterais..."></textarea>
+            </div>
+
+            <button type="submit"
+                class="w-full bg-brand-600 text-white py-4 px-6 rounded-xl font-bold text-lg shadow-lg hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-all transform hover:scale-[1.02]">
+                Envoyer le message
+            </button>
+        </form>
+    </div>
+</section>
+{% endblock %}

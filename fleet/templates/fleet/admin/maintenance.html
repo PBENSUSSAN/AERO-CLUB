@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Gestion Maintenance - Admin{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-100 py-12">
+    <div class="max-w-5xl mx-auto px-4">
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <a href="{% url 'admin_dashboard' %}" class="text-brand-600 hover:underline text-sm">← Retour au
+                    dashboard</a>
+                <h1 class="text-3xl font-bold text-gray-900 mt-2">🔧 Gestion de la Maintenance</h1>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+            <table class="w-full">
+                <thead class="bg-gray-50 text-xs uppercase text-gray-500">
+                    <tr>
+                        <th class="px-6 py-4 text-left">Avion</th>
+                        <th class="px-6 py-4 text-left">Type</th>
+                        <th class="px-6 py-4 text-left">Échéance Date</th>
+                        <th class="px-6 py-4 text-left">Échéance Heures</th>
+                        <th class="px-6 py-4 text-left">Statut</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for deadline in deadlines %}
+                    <tr class="hover:bg-gray-50 transition-colors {% if deadline.is_overdue %}bg-orange-50{% endif %}">
+                        <td class="px-6 py-4 font-bold text-gray-900">{{ deadline.aircraft.registration }}</td>
+                        <td class="px-6 py-4 text-gray-600">{{ deadline.title }}</td>
+                        <td class="px-6 py-4 text-gray-600">
+                            {% if deadline.due_at_date %}{{ deadline.due_at_date|date:"d/m/Y" }}{% else %}-{% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-gray-600">
+                            {% if deadline.due_at_hours %}{{ deadline.due_at_hours }}h{% else %}-{% endif %}
+                        </td>
+                        <td class="px-6 py-4">
+                            {% if deadline.is_overdue %}
+                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800">⚠️
+                                Dépassée</span>
+                            {% else %}
+                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800">✅
+                                OK</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-12 text-center text-gray-400">
+                            <p class="text-lg">Aucune échéance de maintenance enregistrée.</p>
+                            <p class="text-sm mt-2">Ajoutez des butées depuis la fiche de chaque avion.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
