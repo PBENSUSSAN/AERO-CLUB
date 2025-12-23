@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "finance",
     "instruction",
     "alerts",
+    "exports",
 ]
 
 MIDDLEWARE = [
