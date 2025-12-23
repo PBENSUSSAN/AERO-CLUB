@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Tableau de bord Alertes - Administration{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-main">Tableau de bord Alertes</h1>
+            <p class="text-muted">Vue d'ensemble des alertes du club</p>
+        </div>
+        <form method="post" action="{% url 'alerts:run_checks' %}">
+            {% csrf_token %}
+            <button type="submit" class="bg-brand-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-brand-700 transition-colors">
+                🔄 Actualiser les alertes
+            </button>
+        </form>
+    </div>
+
+    <!-- Messages Django -->
+    {% if messages %}
+    <div class="mb-6">
+        {% for message in messages %}
+        <div class="bg-green-50 border border-green-200 text-green-800 rounded-lg p-4">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+        <div class="bg-white rounded-xl shadow p-5 text-center">
+            <div class="text-3xl font-bold text-gray-800">{{ stats.total }}</div>
+            <div class="text-gray-500 text-sm">Total Actives</div>
+        </div>
+        <div class="bg-red-50 rounded-xl shadow p-5 text-center border-2 border-red-200">
+            <div class="text-3xl font-bold text-red-600">{{ stats.blocking }}</div>
+            <div class="text-red-500 text-sm">Bloquantes</div>
+        </div>
+        <div class="bg-orange-50 rounded-xl shadow p-5 text-center">
+            <div class="text-3xl font-bold text-orange-600">{{ stats.critical }}</div>
+            <div class="text-orange-500 text-sm">Critiques</div>
+        </div>
+        <div class="bg-yellow-50 rounded-xl shadow p-5 text-center">
+            <div class="text-3xl font-bold text-yellow-600">{{ stats.warning }}</div>
+            <div class="text-yellow-600 text-sm">Avertissements</div>
+        </div>
+        <div class="bg-blue-50 rounded-xl shadow p-5 text-center">
+            <div class="text-3xl font-bold text-blue-600">{{ stats.info }}</div>
+            <div class="text-blue-500 text-sm">Informations</div>
+        </div>
+    </div>
+
+    <!-- Par Type -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Médicaux -->
+        <div class="bg-white rounded-xl shadow p-6">
+            <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                🏥 Certificats Médicaux
+                <span class="bg-gray-200 text-gray-700 text-sm px-2 py-1 rounded-full">{{ by_type.medical.count }}</span>
+            </h2>
+            {% if by_type.medical %}
+            <div class="space-y-3 max-h-64 overflow-y-auto">
+                {% for alert in by_type.medical %}
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <div>
+                        <span class="font-medium">{{ alert.user.last_name }} {{ alert.user.first_name }}</span>
+                        <span class="text-sm text-gray-500 block">{{ alert.title }}</span>
+                    </div>
+                    <span class="text-xs px-2 py-1 rounded-full
+                        {% if alert.severity == 'BLOCKING' %}bg-red-100 text-red-700
+                        {% elif alert.severity == 'CRITICAL' %}bg-orange-100 text-orange-700
+                        {% elif alert.severity == 'WARNING' %}bg-yellow-100 text-yellow-700
+                        {% else %}bg-blue-100 text-blue-700{% endif %}">
+                        {{ alert.get_severity_display }}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-gray-500 text-sm">Aucune alerte</p>
+            {% endif %}
+        </div>
+
+        <!-- Licences -->
+        <div class="bg-white rounded-xl shadow p-6">
+            <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                📜 Licences / Qualifications
+                <span class="bg-gray-200 text-gray-700 text-sm px-2 py-1 rounded-full">{{ by_type.license.count }}</span>
+            </h2>
+            {% if by_type.license %}
+            <div class="space-y-3 max-h-64 overflow-y-auto">
+                {% for alert in by_type.license %}
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <div>
+                        <span class="font-medium">{{ alert.user.last_name }} {{ alert.user.first_name }}</span>
+                        <span class="text-sm text-gray-500 block">{{ alert.title }}</span>
+                    </div>
+                    <span class="text-xs px-2 py-1 rounded-full
+                        {% if alert.severity == 'BLOCKING' %}bg-red-100 text-red-700
+                        {% elif alert.severity == 'CRITICAL' %}bg-orange-100 text-orange-700
+                        {% elif alert.severity == 'WARNING' %}bg-yellow-100 text-yellow-700
+                        {% else %}bg-blue-100 text-blue-700{% endif %}">
+                        {{ alert.get_severity_display }}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-gray-500 text-sm">Aucune alerte</p>
+            {% endif %}
+        </div>
+
+        <!-- Maintenance -->
+        <div class="bg-white rounded-xl shadow p-6">
+            <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                🔧 Maintenance Avions
+                <span class="bg-gray-200 text-gray-700 text-sm px-2 py-1 rounded-full">{{ by_type.maintenance.count }}</span>
+            </h2>
+            {% if by_type.maintenance %}
+            <div class="space-y-3 max-h-64 overflow-y-auto">
+                {% for alert in by_type.maintenance %}
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <div>
+                        <span class="font-medium">{{ alert.related_aircraft.registration }}</span>
+                        <span class="text-sm text-gray-500 block">{{ alert.title }}</span>
+                    </div>
+                    <span class="text-xs px-2 py-1 rounded-full
+                        {% if alert.severity == 'BLOCKING' %}bg-red-100 text-red-700
+                        {% elif alert.severity == 'CRITICAL' %}bg-orange-100 text-orange-700
+                        {% elif alert.severity == 'WARNING' %}bg-yellow-100 text-yellow-700
+                        {% else %}bg-blue-100 text-blue-700{% endif %}">
+                        {{ alert.get_severity_display }}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-gray-500 text-sm">Aucune alerte</p>
+            {% endif %}
+        </div>
+
+        <!-- Soldes & Expérience -->
+        <div class="bg-white rounded-xl shadow p-6">
+            <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                💰 Soldes & Expérience
+                <span class="bg-gray-200 text-gray-700 text-sm px-2 py-1 rounded-full">{{ by_type.balance.count|add:by_type.experience.count }}</span>
+            </h2>
+            {% if by_type.balance or by_type.experience %}
+            <div class="space-y-3 max-h-64 overflow-y-auto">
+                {% for alert in by_type.balance %}
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <div>
+                        <span class="font-medium">{{ alert.user.last_name }} {{ alert.user.first_name }}</span>
+                        <span class="text-sm text-gray-500 block">{{ alert.title }}</span>
+                    </div>
+                    <span class="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700">Solde</span>
+                </div>
+                {% endfor %}
+                {% for alert in by_type.experience %}
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <div>
+                        <span class="font-medium">{{ alert.user.last_name }} {{ alert.user.first_name }}</span>
+                        <span class="text-sm text-gray-500 block">{{ alert.title }}</span>
+                    </div>
+                    <span class="text-xs px-2 py-1 rounded-full bg-purple-100 text-purple-700">Expérience</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-gray-500 text-sm">Aucune alerte</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Historique récent -->
+    <div class="bg-white rounded-xl shadow p-6">
+        <h2 class="text-lg font-bold text-gray-800 mb-4">Alertes récentes</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="text-left p-3 text-sm font-medium text-gray-600">Sévérité</th>
+                        <th class="text-left p-3 text-sm font-medium text-gray-600">Type</th>
+                        <th class="text-left p-3 text-sm font-medium text-gray-600">Titre</th>
+                        <th class="text-left p-3 text-sm font-medium text-gray-600">Concerné</th>
+                        <th class="text-left p-3 text-sm font-medium text-gray-600">Date</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for alert in recent_alerts %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="p-3">
+                            <span class="text-xs px-2 py-1 rounded-full font-medium
+                                {% if alert.severity == 'BLOCKING' %}bg-red-100 text-red-700
+                                {% elif alert.severity == 'CRITICAL' %}bg-orange-100 text-orange-700
+                                {% elif alert.severity == 'WARNING' %}bg-yellow-100 text-yellow-700
+                                {% else %}bg-blue-100 text-blue-700{% endif %}">
+                                {{ alert.get_severity_display }}
+                            </span>
+                        </td>
+                        <td class="p-3 text-sm text-gray-600">{{ alert.get_alert_type_display }}</td>
+                        <td class="p-3 text-sm font-medium text-gray-800">{{ alert.title|truncatechars:50 }}</td>
+                        <td class="p-3 text-sm text-gray-600">
+                            {% if alert.user %}{{ alert.user.last_name }}{% endif %}
+                            {% if alert.related_aircraft %}{{ alert.related_aircraft.registration }}{% endif %}
+                        </td>
+                        <td class="p-3 text-sm text-gray-500">{{ alert.created_at|date:"d/m/Y H:i" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="p-6 text-center text-gray-500">Aucune alerte récente</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Lien vers admin Django -->
+    <div class="mt-6 text-center">
+        <a href="{% url 'admin:alerts_alert_changelist' %}" class="text-brand-600 hover:underline">
+            Voir toutes les alertes dans l'administration →
+        </a>
+    </div>
+</div>
+{% endblock %}

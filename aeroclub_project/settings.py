@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "planning",
     "finance",
     "instruction",
+    "alerts",
 ]
 
 MIDDLEWARE = [
@@ -135,3 +136,6 @@ MEDIA_ROOT = BASE_DIR / "media"
 LOGIN_REDIRECT_URL = "/"  # Après connexion
 LOGOUT_REDIRECT_URL = "/"  # Après déconnexion
 LOGIN_URL = "/accounts/login/"  # Page de connexion
+
+# Default primary key field type
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

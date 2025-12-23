@@ -64,9 +64,13 @@
                         class="text-orange-600 hover:text-orange-800 font-bold transition-colors">⚙️ Flotte</a>
                     <a href="{% url 'finance_dashboard' %}"
                         class="text-green-600 hover:text-green-800 font-bold transition-colors">💰 Finance</a>
+                    <a href="{% url 'alerts:admin_dashboard' %}"
+                        class="text-red-600 hover:text-red-800 font-bold transition-colors">🔔 Alertes</a>
                     {% endif %}
 
                     {% if user.is_authenticated %}
+                    <a href="{% url 'alerts:my_alerts' %}"
+                        class="text-gray-600 hover:text-brand-600 font-medium transition-colors">Mes Alertes</a>
                     <a href="{% url 'profile' %}"
                         class="text-gray-600 hover:text-brand-600 font-medium transition-colors">Mon Profil</a>
                     <form action="{% url 'logout' %}" method="post" class="inline">

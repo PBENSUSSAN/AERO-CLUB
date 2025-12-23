@@ -26,8 +26,9 @@ urlpatterns = [
     path("fleet/", include("fleet.urls")),
     path("planning/", include("planning.urls")),
     path("members/", include("members.urls")),
-    path("finance/", include("finance.urls")), # Si existant
+    path("finance/", include("finance.urls")),
     path("instruction/", include("instruction.urls")),
+    path("alerts/", include("alerts.urls")),
     path("", include("core.urls")),
 ]
 
